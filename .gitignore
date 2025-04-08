@@ -1,3 +1,7 @@
 test.cpp
 test.exe
 test.o
+
+*.txt
+*.exe
+*.o

@@ -16,15 +16,18 @@ struct MonthlyExpenses {
     vector<Expense> expenses; // Danh sách chi tiêu trong tháng
 };
 
-string getCurrentDate();
-void clearInputBuffer();
-void addExpense(vector<Expense>& expenses);
-void displayExpenses(const vector<Expense>& expenses);
-void deleteExpense(vector<Expense>& expenses);
-void displayStatistics(const vector<Expense>& expenses);
-void displayMainMenu();
-void displayExpensesByMonth(const vector<Expense>& expenses);
-bool cmpEBM(const pair<string, vector<Expense>>& a,const pair<string, vector<Expense>>& b);
+//Khai báo các hàm
+string getCurrentDate(); //Hàm lấy ngày hiện tại
+bool cmpEBM(const pair<string, vector<Expense>>& a,const pair<string, vector<Expense>>& b); //Ham so sánh hai cặp (tháng/năm, danh sách chi tiêu) dùng compare trong hàm sort
+void clearInputBuffer(); //Hàm xóa bộ đệm đầu vào
+void addExpense(vector<Expense>& expenses); //Hàm thêm chi tiêu mới
+void displayExpenses(const vector<Expense>& expenses); //Hàm hiển thị danh sách chi tiêu theo thứ tự nhập vào
+void deleteExpense(vector<Expense>& expenses); //Hàm xóa chi tiêu theo STT đã nhập
+void displayStatistics(const vector<Expense>& expenses); //Hàm hiển thị thống kê chi tiêu theo loại đã nhập (không theo tháng)
+void displayMainMenu(); //Hàm hiển thị menu chính
+void displayExpensesByMonth(const vector<Expense>& expenses); //Hàm hiển thị danh sách chi tiêu theo tháng
+void OutFile(const vector<Expense>& expenses); // Hàm xuất dữ liệu ra file
+void OutFileCSV(const vector<Expense>& expenses); // Hàm xuất dữ liệu ra file CSV (chưa cài đặt)
 
 int main(){
     vector<Expense> expenses;
@@ -56,7 +59,8 @@ int main(){
                 displayExpensesByMonth(expenses);
                 break;
             case 6:
-                cout << "Da luu va thoat chuong trinh!\n";
+                OutFile(expenses); // Xuất dữ liệu ra file expenses.txt
+                cout << "Da luu du lieu vao file expenses va thoat chuong trinh!\n";
                 return 0;
             default:
                 cout << "Lua chon khong hop le! Vui long nhap lai.\n";
@@ -103,23 +107,29 @@ void addExpense(vector<Expense>& expenses) { //Thêm chi tiêu mới
         cout << "Lua chon: ";
         if (!(cin>>typeChoice) || typeChoice < 1 || typeChoice > 5) {
             cout << "Lua chon khong hop le! Vui long nhap lai.\n";
-            cin.clear();
-            clearInputBuffer();
+            cin.clear(); clearInputBuffer();
+            goto InputExpenseType;
         }
     clearInputBuffer();
 
     newExpense.type = EXPENSE_TYPES[typeChoice - 1];
     
-    cout << "Noi dung chi tieu: ";
-    getline(cin, newExpense.description);
+    InputSpendingDescription: //Nhập nội dung chi tiêu
+        cout << "Noi dung chi tieu (toi da 30 ky tu): ";
+        cin.ignore(); // Xóa bộ đệm đầu vào trước khi nhập nội dung chi tiêu
+        if (newExpense.description.length() > 30) {
+            cout << "Noi dung chi tieu khong hop le. Vui long nhap lai!\n";
+            clearInputBuffer();
+            goto InputSpendingDescription;
+        }
+    clearInputBuffer();
     
     InputSpendingAmount: //Nhập số tiền chi tiêu
         cout << "So tien (VND): ";
 
         if (!(cin >> newExpense.amount) || newExpense.amount < 0) {
             cout << "Gia tri khong hop le! Vui long nhap lai.\n";
-            cin.clear();
-            clearInputBuffer();
+            cin.clear(); clearInputBuffer();
             goto InputSpendingAmount;
         }
     clearInputBuffer();
@@ -140,18 +150,18 @@ void displayExpenses(const vector<Expense>& expenses) { //Hiển thị danh sác
         return;
     }
     
-cout << "\n==================== DANH SACH CHI TIEU ====================\n";
-cout << "+------+------------------+--------------------------------+---------------+------------+\n";
-cout << "| STT  |      Loai        |            Noi dung            | So tien (VND) |    Ngay    |\n";
-cout << "+------+------------------+--------------------------------+---------------+------------+\n";
+    cout << "\n==================== DANH SACH CHI TIEU ====================\n";
+    cout << "+------+------------------+--------------------------------+---------------+------------+\n";
+    cout << "| STT  |      Loai        |            Noi dung            | So tien (VND) |    Ngay    |\n";
+    cout << "+------+------------------+--------------------------------+---------------+------------+\n";
 
-for (size_t i = 0; i < expenses.size(); i++) { //Duyệt qua từng chi tiêu trong danh sách expenses
-    cout << "| "
-         << setw(4) << right << i + 1 << " | "
-         << setw(16) << left << expenses[i].type << " | "
-         << setw(30) << left << expenses[i].description << " | "
-         << setw(13) << right << fixed << setprecision(0) << expenses[i].amount << " | "
-         << setw(10) << left << expenses[i].date << " |\n";
+    for (size_t i = 0; i < expenses.size(); i++) { //Duyệt qua từng chi tiêu trong danh sách expenses
+        cout << "| "
+        << setw(4) << right << i + 1 << " | "
+        << setw(16) << left << expenses[i].type << " | "
+        << setw(30) << left << expenses[i].description << " | "
+        << setw(13) << right << fixed << setprecision(0) << expenses[i].amount << " | "
+        << setw(10) << left << expenses[i].date << " |\n";
 }
 
 cout << "+------+------------------+--------------------------------+---------------+------------+\n";
@@ -178,7 +188,7 @@ void displayStatistics(const vector<Expense>& expenses) { //Hiển thị thống
     cout << "\n--- THONG KE CHI TIEU ---\n";
     cout << "Tong tien: " << fixed << setprecision(0) << totalAmount << " VND\n\n"; //Hiển thị tổng số tiền chi tiêu
     
-    for (int i = 0; i < 5; i++) { //Duyệt qua từng loại chi tiêu
+    for (size_t i = 0; i < 5; i++) { //Duyệt qua từng loại chi tiêu
         if (typeAmounts[EXPENSE_TYPES[i]] > 0) {
             double percent = (typeAmounts[EXPENSE_TYPES[i]] / totalAmount) * 100; //tinh toan phan tram so tien chi trong muc voi tong so tien chi
             cout << setw(20) << left << EXPENSE_TYPES[i] << ": " << fixed << setprecision(2) << percent << "%\n"; //Lam tron phan tram 2 chu so thap phan
@@ -214,7 +224,7 @@ void deleteExpense(vector<Expense>& expenses){ //Xóa chi tiêu theo STT đã nh
     cout << "Da xoa chi tieu thanh cong!\n";
 }
 
-bool cmpEBM(const pair<string, vector<Expense>>& a, const pair<string, vector<Expense>>& b) { //So sánh hai cặp (tháng/năm, danh sách chi tiêu)
+bool cmpEBM(const pair<string, vector<Expense>>& a, const pair<string, vector<Expense>>& b) { //So sánh hai cặp (tháng/năm, danh sách chi tiêu) dùng compare trong hàm sort
     int yearA = stoi(a.first.substr(3, 4)); // Lấy năm từ chuỗi "mm/yyyy" -> chuyển từ string sang int
     int yearB = stoi(b.first.substr(3, 4)); // Lấy năm từ chuỗi "mm/yyyy" -> chuyển từ string sang int
     if (yearA == yearB) {
@@ -265,3 +275,16 @@ void displayExpensesByMonth(const vector<Expense>& expenses) {
     }
 }
 
+void OutFile(const vector<Expense>& expenses) { //Xuất dữ liệu ra file expenses.txt
+    ofstream outFile("expenses.txt");
+    if (!outFile) {
+        cout << "Khong the mo file de ghi!\n";
+        return;
+    }
+
+    for (size_t i = 0; i < expenses.size(); i++) { //Duyệt qua từng chi tiêu trong danh sách expenses
+        outFile << expenses[i].type << "\t" << expenses[i].description << "\t" << expenses[i].amount << "\t" << expenses[i].date << "\n";
+    }
+
+    outFile.close();
+}
