@@ -24,6 +24,7 @@ void deleteExpense(vector<Expense>& expenses);
 void displayStatistics(const vector<Expense>& expenses);
 void displayMainMenu();
 void displayExpensesByMonth(const vector<Expense>& expenses);
+bool cmpEBM(const pair<string, vector<Expense>>& a,const pair<string, vector<Expense>>& b);
 
 int main(){
     vector<Expense> expenses;
@@ -213,6 +214,17 @@ void deleteExpense(vector<Expense>& expenses){ //Xóa chi tiêu theo STT đã nh
     cout << "Da xoa chi tieu thanh cong!\n";
 }
 
+bool cmpEBM(const pair<string, vector<Expense>>& a, const pair<string, vector<Expense>>& b) { //So sánh hai cặp (tháng/năm, danh sách chi tiêu)
+    int yearA = stoi(a.first.substr(3, 4)); // Lấy năm từ chuỗi "mm/yyyy" -> chuyển từ string sang int
+    int yearB = stoi(b.first.substr(3, 4)); // Lấy năm từ chuỗi "mm/yyyy" -> chuyển từ string sang int
+    if (yearA == yearB) {
+        int monthA = stoi(a.first.substr(0, 2)); // Lấy tháng từ chuỗi "mm/yyyy" -> chuyển từ string sang int
+        int monthB = stoi(b.first.substr(0, 2)); // Lấy tháng từ chuỗi "mm/yyyy" -> chuyển từ string sang int
+        return monthA < monthB;
+    }
+    return yearA < yearB;
+}
+
 void displayExpensesByMonth(const vector<Expense>& expenses) {
     if (expenses.empty()) {
         cout << "\nDanh sach chi tieu trong!\n";
@@ -222,23 +234,14 @@ void displayExpensesByMonth(const vector<Expense>& expenses) {
     // Sử dụng map để nhóm các chi tiêu theo tháng/năm
     map<string, vector<Expense>> groupedExpenses; 
 
-    for (const auto& expense : expenses) {
-        string monthYear = expense.date.substr(3, 7); // Lấy "mm/yyyy"
-        groupedExpenses[monthYear].push_back(expense);
+    for (size_t i = 0; i < expenses.size(); i++) { //Duyệt qua từng chi tiêu trong danh sách expenses
+        string monthYear = expenses[i].date.substr(3, 7); // Lấy "mm/yyyy"
+        groupedExpenses[monthYear].push_back(expenses[i]);
     }
 
     // Chuyển map thành vector để sắp xếp theo thứ tự tăng dần của năm/tháng
     vector<pair<string, vector<Expense>>> sortedExpenses(groupedExpenses.begin(), groupedExpenses.end());
-    sort(sortedExpenses.begin(), sortedExpenses.end(), [](const pair<string, vector<Expense>>& a, const pair<string, vector<Expense>>& b) {
-        int yearA = stoi(a.first.substr(3, 4)); // Lấy năm từ chuỗi "mm/yyyy" -> chuyển từ string sang int
-        int yearB = stoi(b.first.substr(3, 4)); // Lấy năm từ chuỗi "mm/yyyy" -> chuyển từ string sang int
-        if (yearA == yearB) {
-            int monthA = stoi(a.first.substr(0, 2)); // Lấy tháng từ chuỗi "mm/yyyy" -> chuyển từ string sang int
-            int monthB = stoi(b.first.substr(0, 2)); // Lấy tháng từ chuỗi "mm/yyyy" -> chuyển từ string sang int
-            return monthA < monthB;
-        }
-        return yearA < yearB;
-    });
+    sort(sortedExpenses.begin(), sortedExpenses.end(), cmpEBM); // Sắp xếp theo năm/tháng};
 
     // Hiển thị danh sách chi tiêu theo từng tháng
     for (size_t i = 0; i < sortedExpenses.size(); i++) {

@@ -2,15 +2,20 @@
 
 using namespace std;
 
+// class Solution {
+//     public:
+//         int minimumOperations(vector<int>& nums) {
+//             if (nums.size() == 0) return 0;
+//             set <int> num(100);
+//             for (int i = nums.end() - 1; i >= 0; i--){
+//                 if (num.find(nums[i]) != num.end()) return i/3 + 1;
+//                 else num.insert(nums[i]);
+//             }
+//         }
+//     };
 int main(){
-    string a = "02";
-    int month = stoi(a); // Chuyển đổi chuỗi thành số nguyên
-    if (month == 2){
-        cout << "Thang 2" << endl;
-    } else {
-        cout << "Khong phai thang 2" << endl;
-    }
-    cout << a << endl;
-    cout << month + 8 << endl;
-    return 0;
+    map <string, double> typeAmounts = {
+        {"An uong", 0}
+    };
+    cout << typeAmounts.begin()->first << " " << typeAmounts.begin()->second << endl;
 }
