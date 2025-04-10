@@ -1,6 +1,6 @@
 _Expenses Manager is a simple C++ program designed to help users manage their monthly expenses efficiently. By recording and categorizing expenditures, users can gain better insights into their spending habits. This project is being added sommething... Pls wait!_
 
-******A main code is in cost.cpp!******
+******A main code is in main.cpp!******
 
 Features:
   +) Expense Tracking: Record daily expenses with details such as amount, category, and date.
