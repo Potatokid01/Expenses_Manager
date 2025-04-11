@@ -283,10 +283,10 @@ void displayExpensesByMonth(const vector<Expense>& expenses) {
 
 string askForFilePath(const string& defaultFilePath) { //Hàm yêu cầu người dùng nhập đường dẫn file
     string file_Path;
-    const string invalidChars = "\\/:*?\"<>|"; //Các ký tự không hợp lệ trong đường dẫn file
+    const string invalidChars = "\\/:*?\"<>|()[]{}!@#$%^&"; //Các ký tự không hợp lệ trong đường dẫn file
     //Kiểm tra xem đường dẫn có chứa ký tự không hợp lệ không
     InputFilePath:
-        cout << "Nhap ten file (khong co dau cach va duoi file): ;
+        cout << "Nhap ten file (khong co dau cach va duoi file): ";
         cin >> file_Path; //Nhập đường dẫn file
         if (file_Path.empty()) {
             file_Path = "expenses" + defaultFilePath; // Nếu không nhập thì trả về đường dẫn mặc định
@@ -348,16 +348,17 @@ void OutFile(const vector<Expense>& expenses) { //Xuất dữ liệu ra file exp
         cerr << "Khong the mo file de ghi! Kiem tra thu muc hoac quyen truy cap: " << filePath << "\n";
         return;
     }
-    outFile << "\t==================== DANH SACH CHI TIEU ====================\n";
+    outFile << "\t\t\t==================== DANH SACH CHI TIEU ====================\n";
     outFile << "| STT  |      Loai        |            Noi dung            | So tien (VND) |    Ngay    |\n";
     for (size_t i = 0; i < expenses.size(); i++) { //Duyệt qua từng chi tiêu trong danh sách expenses
-        outFile << setw(3) << left << i+1 << " | " //STT
-                << setw(13) << left << expenses[i].type << " | " //Loại chi tiêu
-                << setw(32) << left << expenses[i].description << " | " //Nội dung chi tiêu
-                << setw(13) << fixed << setprecision(0) << expenses[i].amount << " | " //Số tiền chi tiêu
-                << expenses[i].date << "\n"; //Ngày chi tiêu
+        outFile << setw(4) << right << i+1 << "   | " //STT
+                << setw(16) << left << expenses[i].type << " | " //Loại chi tiêu
+                << setw(30) << left << expenses[i].description << " | " //Nội dung chi tiêu
+                << setw(12) << fixed << setprecision(0) << expenses[i].amount << "  | " //Số tiền chi tiêu
+                << expenses[i].date << " |\n"; //Ngày chi tiêu
         }
     outFile.close();
+    cout << "Da xuat du lieu vao file .txt " << filePath << " thanh cong!\n";
 }
 
 void OutFileCSV(const vector<Expense>& expenses) {
